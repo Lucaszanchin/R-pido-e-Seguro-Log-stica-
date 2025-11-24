@@ -43,7 +43,7 @@ const clienteController = {
     try {
       const { nome, sobrenome, cpf, telefone, email, logradouro, rua, numero, bairro, cidade, estado, cep } = req.body;
 
-      if (!nome || !sobrenome ||!cpf || !telefone || !email || !logradouro || !rua || !numero || !bairro || !cidade || !estado || !cep ||typeof nome !== 'string' || typeof sobrenome !== 'string' || typeof cpf !== 'string' || typeof telefone !== 'string' || typeof email !== 'string' || typeof logradouro !== 'string' || typeof rua !== 'string' ||typeof numero !== 'string' ||typeof bairro !== 'string' ||typeof cidade !== 'string' || typeof estado !== 'string' || typeof cep !== 'string' || cpf.length !== 11 || estado.length !== 2 || cep.length !== 8) {
+      if (!nome || !sobrenome || !cpf || !telefone || !email || !logradouro || !rua || !numero || !bairro || !cidade || !estado || !cep || typeof nome !== 'string' || typeof sobrenome !== 'string' || typeof cpf !== 'string' || typeof telefone !== 'string' || typeof email !== 'string' || typeof logradouro !== 'string' || typeof rua !== 'string' || typeof numero !== 'string' || typeof bairro !== 'string' || typeof cidade !== 'string' || typeof estado !== 'string' || typeof cep !== 'string' || cpf.length !== 11 || estado.length !== 2 || cep.length !== 8) {
         return res.status(400).json({ message: 'Os dados envidos estão icorretos. Envie novamente.' });
       }
 
@@ -67,125 +67,89 @@ const clienteController = {
     }
   },
 
-atualizarCliente: async (req, res) => {
-  try {
-    const idCliente = Number(req.params.idCliente);
+  atualizarCliente: async (req, res) => {
+    try {
+      const idCliente = Number(req.params.idCliente);
 
-    if (isNaN(idCliente) || idCliente <= 0) {
-      return res.status(400).json({ message: 'ID do Cliente inválido.' });
-    }
-
-    // Dados enviados no corpo da requisição
-    let {
-      nome,
-      sobrenome,
-      cpf,
-      telefone,
-      email,
-      logradouro,
-      rua,
-      numero,
-      bairro,
-      cidade,
-      estado,
-      cep
-    } = req.body;
-
-    // Buscar cliente atual
-    const clienteAtual = await clienteModel.selecionarPorId(idCliente);
-
-    if (!clienteAtual || clienteAtual.length === 0) {
-      return res.status(404).json({ message: 'Cliente não encontrado.' });
-    }
-
-    const cliente = clienteAtual[0];
-
-    // ====== VALIDAÇÕES SOMENTE DO QUE FOI ENVIADO ======
-    if (nome !== undefined) {
-      if (typeof nome !== 'string' || nome.trim().length < 3) {
-        return res.status(400).json({ message: 'Nome inválido.' });
+      if (isNaN(idCliente) || idCliente <= 0) {
+        return res.status(400).json({ message: 'ID inválido.' });
       }
-      nome = nome.trim();
-    }
 
-    if (cpf !== undefined) {
-      if (cpf.length !== 11) {
-        return res.status(400).json({ message: 'CPF inválido.' });
+      let {
+        nome, sobrenome, cpf, telefone, email,
+        logradouro, rua, numero, bairro, cidade, estado, cep
+      } = req.body;
+
+
+      const clienteAtual = await clienteModel.selecionarPorId(idCliente);
+
+      if (!clienteAtual || clienteAtual.length === 0) {
+        return res.status(404).json({ message: 'Cliente não encontrado.' });
       }
-    }
 
-    if (estado !== undefined) {
-      if (estado.length !== 2) {
-        return res.status(400).json({ message: 'Estado inválido.' });
-      }
-    }
+      const c = clienteAtual[0]; // cliente atual do banco
 
-    if (cep !== undefined) {
-      if (cep.length !== 8) {
-        return res.status(400).json({ message: 'CEP inválido.' });
-      }
-    }
+      // Corrigido: usar nomes que existem no banco
+      const novoNome = nome ?? c.nome_cliente;
+      const novoSobrenome = sobrenome ?? c.sobrenome_cliente;
+      const novoCpf = cpf ?? c.cpf_cliente;
+      const novoTelefone = telefone ?? c.telefone_cliente;
+      const novoEmail = email ?? c.email_cliente;
+      const novoLogradouro = logradouro ?? c.logradouro_cliente;
+      const novoRua = rua ?? c.rua_cliente;
+      const novoNumero = numero ?? c.numero_cliente;
+      const novoBairro = bairro ?? c.bairro_cliente;
+      const novoCidade = cidade ?? c.cidade_cliente;
+      const novoEstado = estado ?? c.estado_cliente;
+      const novoCep = cep ?? c.cep_cliente;
 
-    const novoNome = nome ?? cliente.nome;
-    const novoSobrenome = sobrenome ?? cliente.sobrenome;
-    const novoCpf = cpf ?? cliente.cpf;
-    const novoTelefone = telefone ?? cliente.telefone;
-    const novoEmail = email ?? cliente.email;
-    const novoLogradouro = logradouro ?? cliente.logradouro;
-    const novoRua = rua ?? cliente.rua;
-    const novoNumero = numero ?? cliente.numero;
-    const novoBairro = bairro ?? cliente.bairro;
-    const novoCidade = cidade ?? cliente.cidade;
-    const novoEstado = estado ?? cliente.estado;
-    const novoCep = cep ?? cliente.cep;
-
-    const resultado = await clienteModel.atualizarCliente(
-      idCliente,
-      novoNome,
-      novoSobrenome,
-      novoCpf,
-      novoTelefone,
-      novoEmail,
-      novoLogradouro,
-      novoRua,
-      novoNumero,
-      novoBairro,
-      novoCidade,
-      novoEstado,
-      novoCep
-    );
-
-    if (!resultado || resultado.affectedRows === 0) {
-      return res.status(500).json({ message: 'Erro ao atualizar cliente.' });
-    }
-
-    return res.status(200).json({
-      message: 'Cliente atualizado com sucesso.',
-      data: {
+      const resultado = await clienteModel.atualizarCliente(
         idCliente,
-        nome: novoNome,
-        sobrenome: novoSobrenome,
-        cpf: novoCpf,
-        telefone: novoTelefone,
-        email: novoEmail,
-        logradouro: novoLogradouro,
-        rua: novoRua,
-        numero: novoNumero,
-        bairro: novoBairro,
-        cidade: novoCidade,
-        estado: novoEstado,
-        cep: novoCep
-      }
-    });
+        novoNome,
+        novoSobrenome,
+        novoCpf,
+        novoTelefone,
+        novoEmail,
+        novoLogradouro,
+        novoRua,
+        novoNumero,
+        novoBairro,
+        novoCidade,
+        novoEstado,
+        novoCep
+      );
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: 'Ocorreu um erro no servidor.',
-      errorMessage: error.message
-    });
-  }
-},
+      if (!resultado || resultado.affectedRows === 0) {
+        return res.status(500).json({ message: 'Erro ao atualizar o Cliente.' });
+      }
+
+      return res.status(200).json({
+        message: 'Cliente atualizado com sucesso.',
+        data: {
+          idCliente,
+          nome: novoNome,
+          sobrenome: novoSobrenome,
+          cpf: novoCpf,
+          telefone: novoTelefone,
+          email: novoEmail,
+          logradouro: novoLogradouro,
+          rua: novoRua,
+          numero: novoNumero,
+          bairro: novoBairro,
+          cidade: novoCidade,
+          estado: novoEstado,
+          cep: novoCep
+        }
+      });
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        message: 'Ocorreu um erro no servidor.',
+        errorMessage: error.message
+      });
+    }
+  },
 
   excluindoCliente: async (req, res) => {
     try {
@@ -209,8 +173,10 @@ atualizarCliente: async (req, res) => {
       console.error(error);
       res.status(500).json({ message: 'Ocorreu um erro no servidor', errorMessage: error.message });
     }
-  }
+  },
 
-}
+  
+
+};
 
 module.exports = { clienteController };

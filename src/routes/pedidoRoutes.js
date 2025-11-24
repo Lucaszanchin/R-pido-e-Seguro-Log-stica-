@@ -1,9 +1,13 @@
 const express = require('express');
-const router = express.Router();
+const pedidoRoutes = express.Router();
+
 const { pedidoController } = require('../controllers/pedidoController');
 
-router.post('/', pedidoController.inserirNovoPedido);
-router.get('/', pedidoController.listarTodosPedidos);
-router.get('/:id', pedidoController.buscarPedidoPorId);
+// Rotas de pedido
+pedidoRoutes.get('/pedidos', pedidoController.listarTodosPedidos);
+pedidoRoutes.get('/pedidos/:idPedido', pedidoController.buscarPedidoPorId);
+pedidoRoutes.post('/pedidos', pedidoController.inserirNovoPedido);
+pedidoRoutes.put('/pedidos/:idPedido', pedidoController.atualizarPedido);
+pedidoRoutes.delete('/pedidos/:idPedido', pedidoController.deletarPedido);
 
-module.exports = { pedidoRoutes: router };
+module.exports = { pedidoRoutes }; // exporta como objeto

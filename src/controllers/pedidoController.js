@@ -2,38 +2,66 @@ const { pedidoModel } = require('../models/pedidoModel');
 const { clienteModel } = require('../models/clienteModel');
 
 const pedidoController = {
+
   async inserirNovoPedido(req, res) {
     try {
-      const {id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valoBaseKm_pedido, valorBaseKg_pedido} = req.body;
+      const { id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido } = req.body;
 
-      
-      if (!id_cliente || !data_pedido || !tipoEntrega_pedido || pesoKg_pedido == null || distanciaKm_pedido == null || valoBaseKm_pedido == null || valorBaseKg_pedido == null) {
+      // Validação dos campos obrigatórios
+      if (!id_cliente || !data_pedido || !tipoEntrega_pedido || pesoKg_pedido == null || distanciaKm_pedido == null || valorBaseKm_pedido == null || valorBaseKg_pedido == null) {
         return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser enviados.' });
       }
 
-      
-      const cliente = await clienteModel.buscarPorId(id_cliente);
-      if (!cliente) return res.status(404).json({ message: 'Cliente não encontrado.' });
+      // Verifica se o cliente existe
+      const cliente = await clienteModel.selecionarPorId(id_cliente);
+      if (!cliente || (Array.isArray(cliente) && cliente.length === 0)) {
+        return res.status(404).json({ message: 'Cliente não encontrado.' });
+      }
 
-      const result = await pedidoModel.criarPedido({id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valoBaseKm_pedido, valorBaseKg_pedido});
+      // Cria o pedido
+      const result = await pedidoModel.criarPedido({
+        id_cliente,
+        data_pedido,
+        tipoEntrega_pedido,
+        pesoKg_pedido,
+        distanciaKm_pedido,
+        valorBaseKm_pedido,
+        valorBaseKg_pedido
+      });
 
-      return res.status(201).json({ id_pedido: result.id, message: 'Pedido criado.' });
+      return res.status(201).json({ id_pedido: result.id, message: 'Pedido criado com sucesso.' });
 
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: 'Erro ao criar pedido.' });
+      return res.status(500).json({ message: 'Erro ao criar pedido.', errorMessage: error.message });
     }
   },
 
   async listarTodosPedidos(req, res) {
+
     try {
       const pedidos = await pedidoModel.listarTodos();
       return res.json(pedidos);
-    } catch (err) {
+
+    } catch (error) {
       console.error(err);
       return res.status(500).json({ message: 'Erro ao listar pedidos.' });
     }
   },
+
+  listarTodosPedidos: async (req, res) => {
+    try {
+      const pedidos = await pedidoModel.listarTodosPedidos();
+      res.json(pedidos);
+    } catch (error) { // <- coloque o nome da variável aqui
+      console.log(error);
+      res.status(500).json({
+        message: "Erro ao buscar pedidos.",
+        errorMessage: error.message
+      });
+    }
+  },
+
 
   async buscarPedidoPorId(req, res) {
     try {
@@ -43,11 +71,78 @@ const pedidoController = {
       const pedido = await pedidoModel.buscarPorId(id);
       if (!pedido) return res.status(404).json({ message: 'Pedido não encontrado.' });
       return res.json(pedido);
-    } catch (err) {
-      console.error(err);
+
+    } catch (error) {
+      console.error(error);
       return res.status(500).json({ message: 'Erro ao buscar pedido.' });
+    }
+  },
+
+  async atualizarPedido(req, res) {
+    try {
+      const idPedido = Number(req.params.idPedido);
+
+      if (!idPedido) {
+        return res.status(400).json({ message: "ID inválido." });
+      }
+
+      const pedidoAtual = await pedidoModel.buscarPorId(idPedido);
+
+      if (!pedidoAtual) {
+        return res.status(404).json({ message: "Pedido não encontrado." });
+      }
+
+
+      let {
+        id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido } = req.body;
+
+      id_cliente = id_cliente ?? pedidoAtual.id_cliente;
+      data_pedido = data_pedido ?? pedidoAtual.data_pedido;
+      tipoEntrega_pedido = tipoEntrega_pedido ?? pedidoAtual.tipoEntrega_pedido;
+      pesoKg_pedido = pesoKg_pedido ?? pedidoAtual.pesoKg_pedido;
+      distanciaKm_pedido = distanciaKm_pedido ?? pedidoAtual.distanciaKm_pedido;
+      valorBaseKm_pedido = valorBaseKm_pedido ?? pedidoAtual.valorBaseKm_pedido;
+      valorBaseKg_pedido = valorBaseKg_pedido ?? pedidoAtual.valorBaseKg_pedido;
+
+      const resultado = await pedidoModel.atualizarPedido(idPedido, id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido
+      );
+
+      if (!resultado || resultado.affectedRows === 0) {
+        return res.status(500).json({ message: "Erro ao atualizar pedido." });
+      }
+
+      res.status(200).json({
+        message: "Pedido atualizado com sucesso!", data: { idPedido, id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido }
+      });
+
+    } catch (error) {
+
+      console.log(error);
+      res.status(500).json({
+        message: "Erro no servidor.",
+        errorMessage: error.message
+      })
+    }
+  },
+  async deletarPedido(req, res) {
+    try {
+      const idPedido = Number(req.params.idPedido);
+      if (isNaN(idPedido) || idPedido <= 0) {
+        return res.status(400).json({ message: 'ID inválido.' });
+      }
+
+      const resultado = await pedidoModel.deletarPedido(idPedido);
+
+      if (!resultado || resultado.affectedRows === 0) {
+        return res.status(404).json({ message: 'Pedido não encontrado.' });
+      }
+
+      return res.json({ message: 'Pedido deletado com sucesso.' });
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Erro ao deletar pedido.', errorMessage: error.message });
     }
   }
 };
-
 module.exports = { pedidoController };
