@@ -42,7 +42,7 @@ const pedidoModel = {
         }
     },
 
-    //Atualiza o Peidos
+    //Atualiza o Pedidos
     async atualizarPedido(id, id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido) {
         const connection = await pool.getConnection();
         try {
@@ -67,18 +67,31 @@ const pedidoModel = {
         }
     },
 
-    //Deleta os Pedidos
+
     async deletarPedido(pId) {
         const connection = await pool.getConnection();
         try {
-            const [result] = await connection.query('DELETE FROM pedidos WHERE id_pedido = ?', [pId]);
+
+            const [pedidoExistente] = await connection.query(
+                'SELECT * FROM pedidos WHERE id_pedido = ?',
+                [pId]
+            );
+
+            if (pedidoExistente.length === 0) {
+
+                return { affectedRows: 0 };
+            }
+
+            const [result] = await connection.query(
+                'DELETE FROM pedidos WHERE id_pedido = ?',
+                [pId]
+            );
+
             return result;
-        } catch(error) {
+        } catch (error) {
             await connection.rollback();
             throw error;
         }
-    }
-};
-
-
+    },
+}
 module.exports = { pedidoModel };

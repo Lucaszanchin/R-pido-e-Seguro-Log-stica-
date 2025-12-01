@@ -19,7 +19,7 @@ const pool = mysql.createPool({
     } catch (error) {
         console.error(`Erro ao conectar ao MySQL: ${ error }`);
     }
-})();
+});
 
 
 

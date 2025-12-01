@@ -26,34 +26,13 @@ const pedidoController = {
         return res.status(404).json({ message: 'Cliente não encontrado.' });
       }
 
-      const result = await pedidoModel.criarPedido({id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido});
+      const result = await pedidoModel.criarPedido({ id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido });
 
       return res.status(201).json({ id_pedido: result.id, message: 'Pedido criado com sucesso.' });
 
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: 'Erro ao criar pedido.', errorMessage: error.message });
-    }
-  },
-
-  /**
-   * Lista todos os pedidos cadastrados.
-   * Rota: GET /pedidos
-   * 
-   * @async
-   * @function listarTodosPedidos
-   * @param {Request} req Objeto de requisição HTTP.
-   * @param {Response} res Objeto de resposta HTTP.
-   * @returns {Promise<Response>} Retorna lista de pedidos.
-   */
-  async listarTodosPedidos(req, res) {
-    try {
-      const pedidos = await pedidoModel.listarTodos();
-      return res.json(pedidos);
-
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Erro ao listar pedidos.' });
     }
   },
 
@@ -75,8 +54,9 @@ const pedidoController = {
     } catch (error) {
 
       console.log(error);
-      res.status(500).json({message: "Erro ao buscar pedidos.", errorMessage: error.message});
+      res.status(500).json({ message: "Erro ao buscar pedidos.", errorMessage: error.message });
     }
+
   },
 
   /**
@@ -134,7 +114,7 @@ const pedidoController = {
         return res.status(404).json({ message: "Pedido não encontrado." });
       }
 
-      let {id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido} = req.body;
+      let { id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido } = req.body;
 
       id_cliente = id_cliente ?? pedidoAtual.id_cliente;
       data_pedido = data_pedido ?? pedidoAtual.data_pedido;
@@ -150,12 +130,13 @@ const pedidoController = {
         return res.status(500).json({ message: "Erro ao atualizar pedido." });
       }
 
-      res.status(200).json({message: "Pedido atualizado com sucesso!", data: { idPedido, id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido }
-});
+      res.status(200).json({
+        message: "Pedido atualizado com sucesso!", data: { idPedido, id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido }
+      });
 
     } catch (error) {
       console.log(error);
-      res.status(500).json({message: "Erro no servidor.",});
+      res.status(500).json({ message: "Erro no servidor.", });
     }
   },
 

@@ -81,7 +81,7 @@ const clienteController = {
 
       const resultadoId = await clienteModel.selecionarPorCpf(cpf)
       if (resultadoId.length === 1) {
-      return res.status(409).json({ message: 'Esse CPF já existe.' })
+        return res.status(409).json({ message: 'Esse CPF já existe.' })
       }
 
       const resultado = await clienteModel.inserirCliente(nome.trim(), sobrenome.trim(), cpf.trim(), telefone.trim(), email.trim(), logradouro.trim(), rua.trim(), numero.trim(), bairro.trim(), cidade.trim(), estado.trim(), cep.trim());
@@ -115,7 +115,7 @@ const clienteController = {
         return res.status(400).json({ message: 'ID inválido.' });
       }
 
-      let {nome, sobrenome, cpf, telefone, email, logradouro, rua, numero, bairro, cidade, estado, cep} = req.body;
+      let { nome, sobrenome, cpf, telefone, email, logradouro, rua, numero, bairro, cidade, estado, cep } = req.body;
 
       const clienteAtual = await clienteModel.selecionarPorId(idCliente);
 
@@ -144,12 +144,13 @@ const clienteController = {
         return res.status(500).json({ message: 'Erro ao atualizar o Cliente.' });
       }
 
-      return res.status(200).json({message: 'Cliente atualizado com sucesso.', data: {idCliente, nome: novoNome, sobrenome: novoSobrenome, cpf: novoCpf, telefone: novoTelefone, email: novoEmail, logradouro: novoLogradouro, rua: novoRua, numero: novoNumero, bairro: novoBairro, cidade: novoCidade, estado: novoEstado, cep: novoCep}});
+      return res.status(200).json({ message: 'Cliente atualizado com sucesso.', data: { idCliente, nome: novoNome, sobrenome: novoSobrenome, cpf: novoCpf, telefone: novoTelefone, email: novoEmail, logradouro: novoLogradouro, rua: novoRua, numero: novoNumero, bairro: novoBairro, cidade: novoCidade, estado: novoEstado, cep: novoCep } });
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({message: 'Ocorreu um erro no servidor.', errorMessage: error.message
-});
+      res.status(500).json({
+        message: 'Ocorreu um erro no servidor.', errorMessage: error.message
+      });
     }
   },
 
@@ -162,33 +163,37 @@ const clienteController = {
    * @param {Response} res
    * @returns {Promise<void>}
    */
+
   excluindoCliente: async (req, res) => {
     try {
       const id = Number(req.params.idCliente);
 
       if (!id || !Number.isInteger(id)) {
-        return res.status(400).json({ message: 'Forneça um ID válido' });
+        return res.status(400).json({ message: 'ID inválido. Informe um número inteiro.' });
       }
 
-      const resultado = await clienteModel.selecionarPorId(id)
 
-      if (resultado.length === 0) {
-        throw new Error("Registro não localizado")
-      } else {
-        const resultado = await clienteModel.deleteCliente(id);
-        if (resultado.affectedRows === 1) {
-          return res.status(200).json({ message: 'O cliente foi excluído com sucesso', data: resultado })
-        } else {
-          throw new Error("Não foi possível excluir o cliente");
-        }
+      const cliente = await clienteModel.selecionarPorId(id);
+      if (!cliente || cliente.length === 0) {
+        return res.status(404).json({ message: 'Cliente não encontrado.' });
+      }
+
+      const qtdPedidos = await clienteModel.verificarPedidosVinculados(id);
+
+      if (qtdPedidos > 0) {
+        return res.status(400).json({message: `Não é possível excluir. O cliente possui ${qtdPedidos} pedido(s) vinculados.`,});
+      }
+      const exclusao = await clienteModel.deleteCliente(id);
+
+      if (exclusao.affectedRows === 1) {
+        return res.status(200).json({ message: 'Cliente excluído com sucesso.', detalhes: exclusao });
       }
 
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Ocorreu um erro no servidor', errorMessage: error.message });
+      return res.status(500).json({message: 'Erro interno no servidor.', detalhes: error.message});
     }
-  },
-
+  }
 };
 
 module.exports = { clienteController };
