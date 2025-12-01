@@ -3,10 +3,11 @@ const clienteRoutes = express.Router();
 
 const {clienteController} = require('../controllers/clienteController');
 
+// Rotas de Clientes
 clienteRoutes.get('/clientes', clienteController.buscarTodosClientes);
 clienteRoutes.get('/clientes/:idCliente', clienteController.buscarClientePorID);
 clienteRoutes.post('/clientes', clienteController.incluirCliente);
 clienteRoutes.put('/clientes/:idCliente', clienteController.atualizarCliente);
 clienteRoutes.delete('/clientes/:idCliente', clienteController.excluindoCliente);
 
-module.exports = {clienteRoutes}
+module.exports = {clienteRoutes}; // Exporta como objeto

@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const {router} = require('./src/routes/router')
+const {router} = require('./src/routes/router');
 const PORT = 8081;
 
 app.use(express.json());

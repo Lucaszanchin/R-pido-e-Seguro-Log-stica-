@@ -1,6 +1,8 @@
 const pool = require('../config/db');
 
 const pedidoModel = {
+
+    //Insere novos pedidos
     async criarPedido(pedido) {
         const connection = await pool.getConnection();
         try {
@@ -13,6 +15,7 @@ const pedidoModel = {
         }
     },
 
+    //Busca pedidos por ID
     async buscarPorId(id) {
         const connection = await pool.getConnection();
         try {
@@ -26,6 +29,7 @@ const pedidoModel = {
         }
     },
 
+    //Lista todos os pedidos
     async listarTodosPedidos() {
         const connection = await pool.getConnection();
         try {
@@ -37,6 +41,8 @@ const pedidoModel = {
             throw error;
         }
     },
+
+    //Atualiza o Peidos
     async atualizarPedido(id, id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido) {
         const connection = await pool.getConnection();
         try {
@@ -60,6 +66,8 @@ const pedidoModel = {
             throw error;
         }
     },
+
+    //Deleta os Pedidos
     async deletarPedido(pId) {
         const connection = await pool.getConnection();
         try {

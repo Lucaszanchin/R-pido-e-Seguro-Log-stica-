@@ -30,6 +30,7 @@ const clienteModel = {
         return result;
     },
 
+    //Atualiza o cliente
     atualizarCliente: async (pId, pNome, pSobrenome, pCpf, pTelefone, pEmail, pLogradouro, pRua, pNumero, pBairro, pCidade, pEstado, pCep
     ) => {
 
@@ -40,8 +41,6 @@ const clienteModel = {
         const [result] = await pool.query(sql, values);
         return result;
     },
-
-
 
     // Deletar cliente por ID
     deleteCliente: async (pId) => {

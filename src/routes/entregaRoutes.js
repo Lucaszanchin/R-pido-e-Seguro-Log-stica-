@@ -8,5 +8,6 @@ entregaRoutes.get('/entregas', entregaController.listarEntregas);
 entregaRoutes.get('/entregas/pedido/:id_pedido', entregaController.buscarPorPedido);
 entregaRoutes.post('/entregas/calcular', entregaController.calcularERegistrar); // calcula e registra entrega
 entregaRoutes.put('/entregas/:id', entregaController.atualizarStatus);
+entregaRoutes.delete('/entregas/:id', entregaController.deletarEntrega)
 
-module.exports = { entregaRoutes }; // exporta como objeto
+module.exports = { entregaRoutes }; // Exporta como objeto
