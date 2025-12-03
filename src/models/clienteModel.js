@@ -64,11 +64,7 @@ const clienteModel = {
             (nome_cliente, sobrenome_cliente, cpf_cliente, telefone_cliente, email_cliente, logradouro_cliente, rua_cliente, numero_cliente, bairro_cliente, cidade_cliente, estado_cliente, cep_cliente) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
-        const [result] = await pool.query(sql, [
-            pNome, pSobrenome, pCpf, pTelefone, pEmail,
-            pLogradouro, pRua, pNumero, pBairro, pCidade,
-            pEstado, pCep
-        ]);
+        const [result] = await pool.query(sql, [pNome, pSobrenome, pCpf, pTelefone, pEmail, pLogradouro, pRua, pNumero, pBairro, pCidade, pEstado, pCep]);
         return result;
     },
 
@@ -91,26 +87,14 @@ const clienteModel = {
      * @param {string} pCep - CEP do cliente.
      * @returns {Promise<Object>} Retorna o resultado da atualização (changedRows etc.).
      */
-    atualizarCliente: async (
-        pId, pNome, pSobrenome, pCpf, pTelefone, pEmail,
-        pLogradouro, pRua, pNumero, pBairro, pCidade, pEstado, pCep
-    ) => {
+    atualizarCliente: async (pId, pNome, pSobrenome, pCpf, pTelefone, pEmail, pLogradouro, pRua, pNumero, pBairro, pCidade, pEstado, pCep) => {
 
-        const sql = `
-            UPDATE clientes 
-            SET nome_cliente = ?, sobrenome_cliente = ?, cpf_cliente = ?, telefone_cliente = ?, 
-                email_cliente = ?, logradouro_cliente = ?, rua_cliente = ?, numero_cliente = ?,  
-                bairro_cliente = ?, cidade_cliente = ?, estado_cliente = ?, cep_cliente = ? 
-            WHERE id_cliente = ?;
-        `;
+        const sql = `UPDATE clientes SET nome_cliente = ?, sobrenome_cliente = ?, cpf_cliente = ?, telefone_cliente = ?, email_cliente = ?, logradouro_cliente = ?, rua_cliente = ?, numero_cliente = ?, bairro_cliente = ?, cidade_cliente = ?, estado_cliente = ?, cep_cliente = ? WHERE id_cliente = ?;`;
 
-        const values = [
-            pNome, pSobrenome, pCpf, pTelefone, pEmail,
-            pLogradouro, pRua, pNumero, pBairro, pCidade,
-            pEstado, pCep, pId
-        ];
+        const values = [pNome, pSobrenome, pCpf, pTelefone, pEmail,pLogradouro, pRua, pNumero, pBairro, pCidade, pEstado, pCep, pId];
 
         const [result] = await pool.query(sql, values);
+        
         return result;
     },
 

@@ -48,16 +48,7 @@ const pedidoModel = {
         try {
             const sql = `UPDATE pedidos SET id_cliente = ?, data_pedido = ?, tipoEntrega_pedido = ?, pesoKg_pedido = ?, distanciaKm_pedido = ?, valorBaseKm_pedido = ?, valorBaseKg_pedido = ? WHERE id_pedido = ?`;
 
-            const [result] = await connection.query(sql, [
-                id_cliente,
-                data_pedido,
-                tipoEntrega_pedido,
-                pesoKg_pedido,
-                distanciaKm_pedido,
-                valorBaseKm_pedido,
-                valorBaseKg_pedido,
-                id
-            ]);
+            const [result] = await connection.query(sql, [id_cliente, data_pedido, tipoEntrega_pedido, pesoKg_pedido, distanciaKm_pedido, valorBaseKm_pedido, valorBaseKg_pedido, id]);
 
             return result;
 
@@ -93,5 +84,21 @@ const pedidoModel = {
             throw error;
         }
     },
-}
+
+    /**
+     * Verifica quantos pedidos estão vinculados a um pedido específico.
+     * 
+     * @async
+     * @function
+     * @param {number} idPedido - ID do pedido que será verificado.
+     * @returns {Promise<number>} Retorna a quantidade total de entrega vinculados ao pedido.
+     */
+    verificarPedidosVinculados: async (idPedido) => {
+        const sql = 'SELECT COUNT(*) AS total FROM entregas WHERE id_pedido = ?';
+        const [linhas] = await pool.query(sql, [idPedido]);
+        return linhas[0].total;
+
+    }
+};
+
 module.exports = { pedidoModel };

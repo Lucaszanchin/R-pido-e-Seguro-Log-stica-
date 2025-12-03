@@ -158,6 +158,12 @@ const pedidoController = {
         return res.status(400).json({ message: 'ID inválido.' });
       }
 
+      const qtdEntregas = await pedidoModel.verificarPedidosVinculados(idPedido);
+
+      if (qtdEntregas > 0) {
+        return res.status(400).json({ message: `Não é possível excluir. O pedido possui ${qtdEntregas} entrega vinculada.`, });
+      }
+
       const resultado = await pedidoModel.deletarPedido(idPedido);
 
       if (!resultado || resultado.affectedRows === 0) {
@@ -171,6 +177,7 @@ const pedidoController = {
       return res.status(500).json({ message: 'Erro ao deletar pedido.', errorMessage: error.message });
     }
   }
+
 };
 
 module.exports = { pedidoController };
