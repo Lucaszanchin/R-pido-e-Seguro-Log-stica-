@@ -4,10 +4,12 @@ const entregaRoutes = express.Router();
 const { entregaController } = require('../controllers/entregaController');
 
 // Rotas de entrega
-entregaRoutes.get('/entregas', entregaController.listarEntregas);
-entregaRoutes.get('/entregas/pedido/:id_pedido', entregaController.buscarPorPedido);
-entregaRoutes.post('/entregas/calcular', entregaController.calcularERegistrar); // calcula e registra entrega
-entregaRoutes.put('/entregas/:id', entregaController.atualizarStatus);
-entregaRoutes.delete('/entregas/:id', entregaController.deletarEntrega)
+entregaRoutes.get('/entregas', entregaController.listarEntregas); // Rota para listar todas entregas
+entregaRoutes.get('/entregas/:id', entregaController.buscarEntregaPorId) // Rota para listar entrega por ID
+entregaRoutes.get('/entregas/pedido/:id_pedido', entregaController.buscarPorPedido); // Rota para buscar entrega por ID do pedido
+entregaRoutes.post('/entregas/calcular', entregaController.calcularERegistrar); // Rota para calcular e registrar entrega
+entregaRoutes.put('/entregas/:id', entregaController.atualizarEntrega); // Rota para atualizar entrega
+entregaRoutes.put('/entregas2/:id', entregaController.atualizarStatus); // Rota para atulizar status
+entregaRoutes.delete('/entregas/:id', entregaController.deletarEntrega); // Rota para deletar entregas
 
 module.exports = { entregaRoutes }; // Exporta como objeto
