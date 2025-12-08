@@ -40,24 +40,6 @@ const clienteModel = {
     },
 
     /**
-     * Seleciona um cliente pelo CPF.
-     * @async
-     * @function
-     * @param {string} pCpf - CPF do cliente para consulta.
-     * @returns {Promise<Array>} Retorna um array contendo o cliente com o CPF informado.
-     */
-    selecionarPorCpf: async (pCpf) => {
-        const sql = 'SELECT * FROM clientes WHERE cpf_cliente = ?';
-        // Query SQL filtrando pelo CPF
-
-        const [rows] = await pool.query(sql, [pCpf]);
-        // Executa passando o CPF no array de parâmetros
-
-        return rows;
-        // Retorna o cliente encontrado ou array vazio
-    },
-
-    /**
  * Insere um novo cliente no banco de dados.
  * @async
  * @function
