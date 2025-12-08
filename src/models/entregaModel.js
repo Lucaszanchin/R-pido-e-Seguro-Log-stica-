@@ -10,13 +10,13 @@ const entregaModel = {
     */
     async listarTodas() {
         const connection = await pool.getConnection();
-        // Abre uma conexão com o banco (modo manual)
+        // Abre uma conexão com o banco 
 
         try {
-            const [rows] = await connection.query('SELECT * FROM entregas');
+            const [result] = await connection.query('SELECT * FROM entregas');
             // Executa a consulta SQL para buscar todas as entregas
 
-            return rows;
+            return result;
             // Retorna todas as linhas encontradas
 
         } catch (error) {
@@ -28,14 +28,23 @@ const entregaModel = {
         }
     },
 
+    /**
+ * Busca uma entrega pelo ID.
+ *
+ * @async
+ * @function buscarPorId
+ * @param {number} id - ID da entrega que será pesquisada.
+ * @returns {Promise<Object|null>} Retorna o objeto da entrega encontrada ou `null` se não existir.
+ */
     async buscarPorId(id) {
         const connection = await pool.getConnection(); // Abre conexão
         try {
-            // Executa select por ID
-            const [rows] = await connection.query('SELECT * FROM entregas WHERE id_entrega = ?', [id]);
+            // Executa SELECT por ID
+            const [result] = await connection.query(
+                'SELECT * FROM entregas WHERE id_entrega = ?', [id]);
 
-            // Retorna somente a primeira linha (ou undefined)
-            return rows[0];
+            // Retorna apenas a primeira linha (ou undefined/null caso não exista)
+            return result[0] || null;
 
         } catch (error) {
             await connection.rollback();
@@ -55,13 +64,10 @@ const entregaModel = {
         // Cria uma nova conexão com o banco              
 
         try {
-            const [rows] = await connection.query(
-                'SELECT * FROM entregas WHERE id_pedido = ?',
-                [id_pedido]
-            );
+            const [result] = await connection.query('SELECT * FROM entregas WHERE id_pedido = ?', [id_pedido]);
             // Consulta entregas filtrando pelo ID do pedido
 
-            return rows;
+            return result;
             // Retorna array de entregas encontradas
 
         } catch (error) {
@@ -185,20 +191,22 @@ const entregaModel = {
  * @throws Lança erro caso ocorra falha na query ou na transação.
  */
     async atualizarEntrega(id_pedido, valorDistancia_entrega, valorPeso_entrega, acrescimo_entrega, desconto_entrega, taxaAdicional_entrega, valorFinal_entrega, id_entrega) {
+        // Abre uma conexão com o banco
         const connection = await pool.getConnection();
 
         try {
-            const sql = `
-            UPDATE entregas 
-            SET id_pedido = ?, valorDistancia_entrega = ?, valorPeso_entrega = ?, acrescimo_entrega = ?, desconto_entrega = ?, taxaAdicional_entrega = ?, valorFinal_entrega = ? WHERE id_entrega = `;
+            // Comando SQL para atualizar os dados da entrega
+            const sql = `UPDATE entregas SET id_pedido = ?, valorDistancia_entrega = ?, valorPeso_entrega = ?, acrescimo_entrega = ?, desconto_entrega = ?, taxaAdicional_entrega = ?, valorFinal_entrega = ? WHERE id_entrega = ?`;
 
+            // Executa a query enviando os valores como parâmetros
             const [result] = await connection.query(sql, [id_pedido, valorDistancia_entrega, valorPeso_entrega, acrescimo_entrega, desconto_entrega, taxaAdicional_entrega, valorFinal_entrega, id_entrega]);
 
-            return result;
+            return result; // Retorna o resultado da atualização
 
         } catch (error) {
+            // Caso dê erro, desfaz qualquer alteração pendente
             await connection.rollback();
-            throw error;
+            throw error; // Repassa o erro para quem chamou a função
         }
     }
 };

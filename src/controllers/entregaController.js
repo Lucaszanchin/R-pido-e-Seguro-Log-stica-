@@ -1,5 +1,6 @@
 const { entregaModel } = require('../models/entregaModel'); // Importa o model de entregas
 const { pedidoModel } = require('../models/pedidoModel');   // Importa o model de pedidos
+const { clienteModel } = require('../models/clienteModel');  // Importa o model de clientes
 
 /**
  * Controlador responsável por operações relacionadas às entregas,
@@ -33,7 +34,7 @@ const entregaController = {
       if (!pedido)
         return res.status(404).json({ message: 'Pedido não encontrado.' });
 
-      // -------- CÁLCULOS DA ENTREGA --------
+      // Cálculos da Entrega
 
       // Calcula custo por distância e peso
       const valorDistancia = Number(pedido.distanciaKm_pedido) * Number(pedido.valorBaseKm_pedido);
@@ -111,27 +112,72 @@ const entregaController = {
     }
   },
 
+  /**
+ * Lista todas as entregas vinculadas a um cliente específico.
+ *
+ * @async
+ * @function listarEntregasDoCliente
+ * @param {Request} req - Objeto da requisição HTTP
+ * @param {Response} res - Objeto da resposta HTTP
+ * @returns {Promise<Response>} Lista de entregas ou mensagem de erro
+ */
+  async listarEntregasDoCliente(req, res) {
+    try {
+      const id = Number(req.params.id);
+
+      // Validação do ID
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({ message: "ID inválido." });
+      }
+
+      // Busca entregas do cliente
+      const entregas = await clienteModel.buscarEntregasPorCliente(id);
+
+      // Caso o cliente exista mas não tenha entregas
+      if (!entregas || entregas.length === 0) {
+        return res.status(404).json({ message: "Nenhuma entrega encontrada para este cliente." });
+      }
+
+      return res.status(200).json(entregas);
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Erro ao buscar entregas.", error: error.message });
+    }
+  },
+
+  /**
+   * Busca uma entrega pelo ID.
+   *
+   * @async
+   * @function buscarEntregaPorId
+   * @param {Request} req - Objeto da requisição HTTP
+   * @param {Response} res - Objeto da resposta HTTP
+   * @returns {Promise<Response>} Retorna a entrega encontrada ou mensagens de erro.
+   */
   async buscarEntregaPorId(req, res) {
     try {
-      const id = Number(req.params.id); // Converte parâmetro para número
+      const id = Number(req.params.id);
 
-      // Verifica ID válido
+      // Validação de ID
       if (isNaN(id) || id <= 0) {
         return res.status(400).json({ message: 'ID inválido.' });
       }
 
-      // Busca entrega
+      // Consulta no banco
       const entrega = await entregaModel.buscarPorId(id);
 
+      // Caso não encontre
       if (!entrega) {
-        return res.status(404).json({ message: 'Entrega não encontrado.' });
+        return res.status(404).json({ message: 'Entrega não encontrada.' });
       }
 
-      return res.status(200).json(entrega); // Retorna a entrega
+      // Sucesso
+      return res.status(200).json(entrega);
 
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: 'Erro ao buscar entrega.' });
+      return res.status(500).json({ message: 'Erro ao buscar entrega.', error: error.message });
     }
   },
 
@@ -206,7 +252,6 @@ const entregaController = {
     }
   },
 
-
   /**
    * Deleta uma entrega pelo ID.
    * 
@@ -271,7 +316,7 @@ const entregaController = {
       }
 
       // Desestrutura o body recebidos na requisição
-      let {id_pedido, valorDistancia_entrega, valorPeso_entrega, acrescimo_entrega, desconto_entrega, taxaAdicional_entrega, valorFinal_entrega} = req.body;
+      let { id_pedido, valorDistancia_entrega, valorPeso_entrega, acrescimo_entrega, desconto_entrega, taxaAdicional_entrega, valorFinal_entrega } = req.body;
 
       // Se algum campo não vier no body, usa o valor atual do banco
       id_pedido = id_pedido ?? entregaAtual.id_pedido;
@@ -291,7 +336,7 @@ const entregaController = {
       }
 
       // Retorna resposta de sucesso
-      res.status(200).json({message: "Entrega atualizada com sucesso!", data: {id_entrega: id, id_pedido, valorDistancia_entrega, valorPeso_entrega, acrescimo_entrega, desconto_entrega, taxaAdicional_entrega, valorFinal_entrega}});
+      res.status(200).json({ message: "Entrega atualizada com sucesso!", data: { id_entrega: id, id_pedido, valorDistancia_entrega, valorPeso_entrega, acrescimo_entrega, desconto_entrega, taxaAdicional_entrega, valorFinal_entrega } });
 
     } catch (error) {
       // Loga o erro no servidor e retorna erro 500

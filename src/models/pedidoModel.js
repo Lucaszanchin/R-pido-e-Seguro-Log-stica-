@@ -46,8 +46,7 @@ const pedidoModel = {
         const connection = await pool.getConnection(); // Abre conexão
         try {
             // Executa select por ID
-            const [rows] = await connection.query('SELECT * FROM pedidos WHERE id_pedido = ?',[id]
-            );
+            const [rows] = await connection.query('SELECT * FROM pedidos WHERE id_pedido = ?', [id]);
 
             // Retorna somente a primeira linha (ou undefined)
             return rows[0];
@@ -119,7 +118,7 @@ const pedidoModel = {
         const connection = await pool.getConnection(); // Abre conexão
         try {
             // Verifica se o pedido existe
-            const [pedidoExistente] = await connection.query('SELECT * FROM pedidos WHERE id_pedido = ?', [pId] );
+            const [pedidoExistente] = await connection.query('SELECT * FROM pedidos WHERE id_pedido = ?', [pId]);
 
             // Se não existir, retorna como não removido
             if (pedidoExistente.length === 0) {
@@ -127,10 +126,7 @@ const pedidoModel = {
             }
 
             // Remove o pedido
-            const [result] = await connection.query(
-                'DELETE FROM pedidos WHERE id_pedido = ?',
-                [pId]
-            );
+            const [result] = await connection.query('DELETE FROM pedidos WHERE id_pedido = ?', [pId]);
 
             return result; // Retorna resultado da exclusão
         } catch (error) {
@@ -148,14 +144,22 @@ const pedidoModel = {
      * @param {number} idPedido - ID do pedido a ser verificado.
      * @returns {Promise<number>} Quantidade de entregas vinculadas.
      */
-    verificarPedidosVinculados: async (idPedido) => {
-        // Query para contar entregas associadas ao pedido
-        const sql = 'SELECT COUNT(*) AS total FROM entregas WHERE id_pedido = ?';
+    async verificarPedidosVinculados(idPedido) {
+        const connection = await pool.getConnection();
 
-        const [linhas] = await pool.query(sql, [idPedido]);
+        try {
+            const sql = 'SELECT COUNT(*) AS total FROM entregas WHERE id_pedido = ?';
 
-        // Retorna somente o valor total
-        return linhas[0].total;
+            const [linhas] = await connection.query(sql, [idPedido]);
+
+            // Retorna somente o valor total
+            return linhas[0].total;
+
+        } catch (error) {
+            await connection.rollback();
+            throw error; // dispara o erro para o controller tratar
+
+        }
     }
 };
 

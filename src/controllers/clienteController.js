@@ -1,4 +1,4 @@
-const { clienteModel } = require('../models/clienteModel'); 
+const { clienteModel } = require('../models/clienteModel');
 // Importa o model responsável pelas operações no banco de dados para clientes.
 
 /**
@@ -19,7 +19,7 @@ const clienteController = {
    */
   buscarTodosClientes: async (req, res) => {
     try {
-      const resultado = await clienteModel.selecionarTodos(); 
+      const resultado = await clienteModel.selecionarTodos();
       // Busca todos os clientes no banco
 
       if (!resultado || resultado.length === 0) {
@@ -88,8 +88,7 @@ const clienteController = {
       const { nome, sobrenome, cpf, telefone, email, logradouro, rua, numero, bairro, cidade, estado, cep } = req.body;
 
       // Validação de campos obrigatórios e tipos
-      if (!nome || !sobrenome || !cpf || !telefone || !email || !logradouro || !rua || !numero || !bairro || !cidade || !estado || !cep ||
-        typeof nome !== 'string' || typeof sobrenome !== 'string' || typeof cpf !== 'string' ||
+      if (!nome || !sobrenome || !cpf || !telefone || !email || !logradouro || !rua || !numero || !bairro || !cidade || !estado || !cep || typeof nome !== 'string' || typeof sobrenome !== 'string' || typeof cpf !== 'string' ||
         typeof telefone !== 'string' || typeof email !== 'string' || typeof logradouro !== 'string' ||
         typeof rua !== 'string' || typeof numero !== 'string' || typeof bairro !== 'string' ||
         typeof cidade !== 'string' || typeof estado !== 'string' || typeof cep !== 'string' ||
@@ -119,7 +118,7 @@ const clienteController = {
       }
 
     } catch (error) {
-      // Tratamento do erro
+      // Tratamento do erro no servidor
       console.error(error);
       res.status(500).json({ message: 'Ocorreu um erro no servidor', errorMessage: error.message });
     }
@@ -173,8 +172,7 @@ const clienteController = {
       const novoCep = cep ?? cliente.cep_cliente;
 
       // Atualiza no banco
-      const resultado = await clienteModel.atualizarCliente(
-        idCliente, novoNome, novoSobrenome, novoCpf, novoTelefone, novoEmail,
+      const resultado = await clienteModel.atualizarCliente(idCliente, novoNome, novoSobrenome, novoCpf, novoTelefone, novoEmail,
         novoLogradouro, novoRua, novoNumero, novoBairro, novoCidade, novoEstado, novoCep
       );
 
@@ -186,17 +184,16 @@ const clienteController = {
       // Retorna os dados atualizados
       return res.status(200).json({
         message: 'Cliente atualizado com sucesso.',
-        data: { idCliente, nome: novoNome, sobrenome: novoSobrenome, cpf: novoCpf,
-          telefone: novoTelefone, email: novoEmail, logradouro: novoLogradouro, rua: novoRua,
-          numero: novoNumero, bairro: novoBairro, cidade: novoCidade, estado: novoEstado, cep: novoCep }
+        data: {
+          idCliente, nome: novoNome, sobrenome: novoSobrenome, cpf: novoCpf, telefone: novoTelefone, email: novoEmail, logradouro: novoLogradouro, rua: novoRua,
+          numero: novoNumero, bairro: novoBairro, cidade: novoCidade, estado: novoEstado, cep: novoCep
+        }
       });
 
     } catch (error) {
       // Tratamento de erros
       console.error(error);
-      res.status(500).json({
-        message: 'Ocorreu um erro no servidor.', errorMessage: error.message
-      });
+      res.status(500).json({ message: 'Ocorreu um erro no servidor.', errorMessage: error.message });
     }
   },
 
@@ -246,9 +243,7 @@ const clienteController = {
     } catch (error) {
       // Tratamento de erros
       console.error(error);
-      return res.status(500).json({
-        message: 'Erro interno no servidor.', detalhes: error.message
-      });
+      return res.status(500).json({message: 'Erro interno no servidor.', detalhes: error.message});
     }
   }
 };

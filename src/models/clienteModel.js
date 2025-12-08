@@ -146,16 +146,35 @@ const clienteModel = {
      * @param {number} clienteId - ID do cliente que será verificado.
      * @returns {Promise<number>} Retorna a quantidade total de pedidos vinculados ao cliente.
      */
-
     verificarPedidosVinculados: async (clienteId) => {
         const sql = 'SELECT COUNT(*) AS total FROM pedidos WHERE id_cliente = ?';
         // Query SQL para contar pedidos registrados para o cliente
 
-        const [linhas] = await pool.query(sql, [clienteId]);
+        const [rows] = await pool.query(sql, [clienteId]);
         // Execução da query passando o ID do cliente
 
-        return linhas[0].total;
+        return rows[0].total;
         // Retorna apenas o número total de pedidos vinculados
+    },
+
+    /**
+     * Busca todas as entregas vinculadas a um cliente específico.
+     *
+     * @async
+     * @function buscarEntregasPorCliente
+     * @param {number} id_cliente - ID do cliente para filtrar as entregas.
+     * @returns {Promise<Array<Object>>} Lista de entregas relacionadas ao cliente.
+     */
+    buscarEntregasPorCliente: async (id_cliente) => {
+        const sql = `SELECT c.nome_cliente, e. * FROM entregas e JOIN pedidos p ON e.id_pedido = p.id_pedido JOIN clientes c ON c.id_cliente = p.id_cliente WHERE c.id_cliente = ?;`;
+        // Consulta SQL que busca o nome do cliente (c.nome_cliente), e todas as colunas da tabela de entregas (e.*), 
+        // Faz JOIN entre entregas (e), pedidos (p) e clientes (c) | Primeiro JOIN: liga entrega ao pedido pelo id_pedido | Segundo JOIN: liga pedido ao cliente pelo id_cliente
+        // Filtra para retornar somente as entregas do cliente cujo id é passado no parâmetro (WHERE c.id_cliente = ?)
+
+        const [rows] = await pool.query(sql, [id_cliente]);
+        // Execução da query passando o ID do cliente
+
+        return rows;
     }
 };
 
